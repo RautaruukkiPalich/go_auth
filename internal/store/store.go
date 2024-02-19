@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 )
 
 type Store struct {
