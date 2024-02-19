@@ -15,10 +15,7 @@ import (
 // @BasePath	/
 func main() {
 	config := server.NewConfig()
-
-	s := server.New(config)
-
-	if err := s.Start(); err != nil {
+	if err := server.Start(config); err != nil {
 		log.Fatal(err)
 	}
 }
