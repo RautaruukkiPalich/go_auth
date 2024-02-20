@@ -11,10 +11,11 @@ import (
 type User struct {
 	Id                 int       `json:"id"`
 	Username           string    `json:"username"`
+	Slug 			   string	 `json:"slug,omitempty"`
 	Password     	   string    `json:"password,omitempty"`
-	HashedPassword     string    `json:"hashed_password"`
+	HashedPassword     string    `json:"hashed_password,omitempty"`
 	LastPasswordChange time.Time `json:"last_password_change"`
-	CreatedAt          time.Time `json:"created_at,omitempty"`
+	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at,omitempty"`
 }
 
@@ -33,10 +34,6 @@ func (u *User) BeforeCreate() error {
 
 func (u *User) ComparePassword(password string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(u.HashedPassword), []byte(password)) == nil
-}
-
-func (u *User) Sanitize() {
-	u.Password = ""
 }
 
 func (u *User) Validate() error {
@@ -63,8 +60,8 @@ func (u *User) ValidateUsername(username string) (err error) {
 		return errors.New("username can not contains spaces")
 	}
 
-
 	// Valid with regexp
+
 	// Valid unique
 
 	return nil
