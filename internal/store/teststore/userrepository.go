@@ -1,10 +1,13 @@
 package teststore
 
 import (
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/rautaruukkipalich/go_auth/internal/model"
 	"github.com/rautaruukkipalich/go_auth/internal/store"
+	"github.com/rautaruukkipalich/go_auth/internal/utils"
 )
 
 type UserRepository struct {
@@ -17,10 +20,15 @@ func (r *UserRepository) Create(u *model.User) (*model.User, error) {
 		return nil, err
 	}
 	
+	if r.users[u.Username] != nil {
+		return nil, errors.New("User already exists")
+	}
+
 	utcNow := time.Now().UTC()
 
 	r.users[u.Username] = u
 	u.Id = len(r.users)
+	u.Slug = strings.ToLower(u.Username)
 	u.CreatedAt = utcNow
 	u.UpdatedAt = utcNow
 	u.LastPasswordChange = utcNow
@@ -28,7 +36,7 @@ func (r *UserRepository) Create(u *model.User) (*model.User, error) {
 	return r.users[u.Username], nil
 }
 
-func (r *UserRepository) Find(username string) (*model.User, error) {
+func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 	
 	u := r.users[username]
 
@@ -45,7 +53,7 @@ func (r *UserRepository) FindById(id int) (*model.User, error) {
 	
 	for _, val := range r.users {
 		if val.Id == id {
-			return u, nil
+			return val, nil
 		}
 	}
 
@@ -56,6 +64,61 @@ func (r *UserRepository) FindById(id int) (*model.User, error) {
 	return u, nil
 }
 
-func (r *UserRepository) Auth(*model.User) (string, error) {
-	return "", nil
+func (r *UserRepository) FindBySlug(slug string) (*model.User, error) {
+	var u *model.User
+	
+	for _, val := range r.users {
+		if val.Slug == slug {
+			return val, nil
+		}
+	}
+
+	if u == nil {
+		return nil, store.ErrRecordNotFound
+	}
+
+	return u, nil
+}
+
+func (r *UserRepository) Auth(u *model.User) (string, error) {
+	user, err := r.FindByUsername(u.Username)
+
+	if err != nil {
+		return "", store.ErrRecordNotFound
+	}
+	if !user.ComparePassword(u.Password){
+		return "", store.ErrRecordNotFound
+	}
+
+	return utils.EncodeJWTToken(user)
+}
+
+func (r *UserRepository) UpdatePassword(u *model.User, password string) (error) {
+	err := u.ValidatePassword(password)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+
+	_, err = model.EncryptPassword(password)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+
+	u.Password = password
+
+	return nil
+}
+
+func (r *UserRepository) UpdateUsername(u *model.User, username string) (error) {
+	err := u.ValidateUsername(username)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+
+	slug := strings.ToLower(username)
+
+	u.Username = username
+	u.Slug = slug
+	
+	return nil
 }
