@@ -1,19 +1,16 @@
 .PHONY: run
 .DEFAULT_GOAL := run
 
-# run: swagger
-# 	go run ./cmd/app/main.go
-
 # build: swagger
 # 	go build -v ./cmd/app
 
-# swagger: tidy
-# 	swag init
-# 	swag fmt
 
-
-run: tidy
+run: swagger
 	go run ./cmd/app/main.go
+
+swagger: tidy
+	swag init -g cmd/app/main.go
+	swag fmt
 
 test: tidy
 	migrate -path migrations -database "postgres://postgres:postgres@localhost:5432/go_auth_users_test?sslmode=disable" up
@@ -21,6 +18,9 @@ test: tidy
 
 tidy:
 	go mod tidy
+
+
+##############################################################################################################################
 
 makemigrations:
 	migrate create -ext sql -dir migrations $(name)
