@@ -1,0 +1,231 @@
+basePath: /
+definitions:
+  server.changePassword:
+    properties:
+      password:
+        type: string
+    type: object
+  server.changeUsername:
+    properties:
+      username:
+        type: string
+    type: object
+  server.errorResponse:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+    type: object
+  server.loginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  server.userAuthRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  server.userResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      last_password_change:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample Auth service
+  title: Swagger Example API
+  version: 0.0.1
+paths:
+  /auth:
+    post:
+      consumes:
+      - application/json
+      description: get token by username and password
+      parameters:
+      - description: login
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/server.userAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.loginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Login
+      tags:
+      - auth
+  /me:
+    get:
+      consumes:
+      - application/json
+      description: account info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Account
+      tags:
+      - me
+    patch:
+      consumes:
+      - application/json
+      description: change username
+      parameters:
+      - description: editusername
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/server.changeUsername'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit Username
+      tags:
+      - me
+  /me/password:
+    patch:
+      consumes:
+      - application/json
+      description: change password
+      parameters:
+      - description: editPassword
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/server.changePassword'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Edit Password
+      tags:
+      - me
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: register by username and password
+      parameters:
+      - description: register
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/server.userAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Register
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
