@@ -1,22 +1,83 @@
 package server
 
-import "github.com/rautaruukkipalich/go_auth/config"
+import (
+	"fmt"
+	"net/http"
 
-type Config struct {
-	BindAddress string
-	LogLevel    string
-	DatabaseURL string
-}
+	utl "github.com/rautaruukkipalich/go_auth/internal/utils"
+)
+
+type (
+	Config struct {
+		BindAddress string
+		LogLevel    string
+		DatabaseURL string
+	}
+
+	CorsConfig struct {
+		AllowedOrigins []string
+		AllowedMethods []string
+		AllowedHeaders []string
+		AllowCredentials bool
+	}
+)
 
 func NewConfig() *Config {
-	// return &Config{
-	// 	BindAddress: "localhost:8080",
-	// 	LogLevel: "debug",
-	// 	DatabaseURL: "postgres://postgres:postgres@localhost:5432/go_auth_users?sslmode=disable",
-	// }
+	LOG_LEVEL := utl.GetEnv("LOG_LEVEL", "debug")
+
+	BIND_ADDR := fmt.Sprintf(
+		"%s:%s",
+		utl.GetEnv("HOST_ADDR", "127.0.0.1"),
+		utl.GetEnv("HOST_PORT", "8081"),
+	)
+
+	DB_URI := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		utl.GetEnv("DB_USER", "postgres"),
+		utl.GetEnv("DB_PASS", "postgres"),
+		utl.GetEnv("DB_HOST", "localhost"),
+		utl.GetEnv("DB_PORT", "5432"),
+		utl.GetEnv("DB_NAME", "postgres"),
+	)
+
 	return &Config{
-		BindAddress: config.BIND_ADDR,
-		LogLevel:    config.LOG_LEVEL,
-		DatabaseURL: config.DB_URI,
+		BindAddress: BIND_ADDR,
+		LogLevel:    LOG_LEVEL,
+		DatabaseURL: DB_URI,
 	}
+}
+
+func NewCorsConfig() *CorsConfig {
+	ORIGINS := []string{
+		"http://127.0.0.1:8080",
+		"http://localhost:8080",
+		"127.0.0.1:8080",
+		"localhost:8080",
+	}
+	
+	METHODS := []string{
+		http.MethodGet, 
+		http.MethodPost, 
+		http.MethodPatch,
+	}
+
+	HEADERS := []string{
+		"Authorization",
+		"Accept",
+		"Access-Control-Allow-Origin",
+		"Access-Control-Allow-Credentials",
+		"Content-Type",
+		"Content-Length",
+		"X-Requested-With",
+	}
+	
+	CREDENTIALS := true
+
+	return &CorsConfig{
+		AllowedOrigins: ORIGINS,
+		AllowedMethods: METHODS,
+		AllowedHeaders: HEADERS,
+		AllowCredentials: CREDENTIALS,
+	}
+	
 }
