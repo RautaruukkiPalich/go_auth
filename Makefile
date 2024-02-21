@@ -15,8 +15,12 @@ swagger: tidy
 	swag fmt
 
 test: tidy
-	migrate -path migrations -database "postgres://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}_test?sslmode=disable" up
-	go test -v -race -timeout 30s ./...
+	migrate -path migrations -database "postgres://postgres:postgres@localhost:5432/go_auth_users_test?sslmode=disable" up
+	go test -v -cover -race -timeout 30s ./...
+	
+testcover: tidy
+	migrate -path migrations -database "postgres://postgres:postgres@localhost:5432/go_auth_users_test?sslmode=disable" up
+	go test -cover -coverpkg ./... ./...
 
 tidy:
 	go mod tidy
