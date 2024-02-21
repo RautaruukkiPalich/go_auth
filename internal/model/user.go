@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 	"time"
 
@@ -47,35 +48,44 @@ func (u *User) Validate() error {
 }
 
 func (u *User) ValidateUsername(username string) (err error) {
-	if len(username) < 1 {
-		return errors.New("username must be longer then one character")
+	if len(username) < 3 {
+		return errors.New("username must be longer then 3 characters")
 	}
 
-	if len(username) > 100 {
-		return errors.New("username can not be longer then 100 character")
-	}
-
-	splitUsername := strings.Split(username, " ")
-	if len(splitUsername) > 1 {
-		return errors.New("username can not contains spaces")
+	if len(username) > 20 {
+		return errors.New("username can not be longer then 20 characters")
 	}
 
 	// Valid with regexp
-
-	// Valid unique
+	matched, err := regexp.MatchString(`^[A-z]+$`, username)
+	if err != nil {
+		return errors.New("server error")
+	}
+	if !matched {
+		return errors.New("use latin letters only")
+	}
 
 	return nil
 }
 
 func (u *User) ValidatePassword(password string) (err error) {
-	if len(password) < 1 {
+	if len(password) < 4 {
 		return errors.New("password must be longer then one character")
 	}
+
 	splitPassword := strings.Split(password, " ")
 	if len(splitPassword) > 1 {
 		return errors.New("password can not contains spaces")
 	}
+
 	// Valid with regexp
+	matched, err := regexp.MatchString(`^[\w\d]*$`, password)
+	if err != nil {
+		return errors.New("server error")
+	}
+	if !matched {
+		return errors.New("use letters and digits only")
+	}
 
 	return nil
 }
