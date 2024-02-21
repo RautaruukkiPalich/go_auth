@@ -17,7 +17,7 @@ type Server struct {
 	store  store.Store
 }
 
-func newServer(store store.Store) *Server {
+func newServer(store store.Store, log_level string) *Server {
 	s := &Server{
 		router: mux.NewRouter(),
 		logger: logrus.New(),
@@ -25,8 +25,17 @@ func newServer(store store.Store) *Server {
 	}
 
 	s.configureRouter()
-	s.logger.Info("server up")
+	s.configureLogger(log_level)
+
 	return s
+}
+
+func (s *Server) configureLogger(lvl string) {
+	level, err := logrus.ParseLevel(lvl)
+	if err != nil {
+		panic(err)
+	}
+	s.logger.Level = level
 }
 
 func (s *Server) configureRouter() {
