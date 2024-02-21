@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+
+	"github.com/joho/godotenv"
 	"github.com/rautaruukkipalich/go_auth/internal/server"
 )
 
@@ -22,12 +24,10 @@ func main() {
 	}
 }
 
-// func init() {
-//     // loads values from .env into the system
-//     log.Print("try load env...")
-// 	if err := godotenv.Load(); err != nil {
-//         log.Print("No .env file found")
-// 		return
-//     }
-// 	log.Print("ENV file loaded")
-// }
+func init() {
+    // loads values from .env into the system
+	if err := godotenv.Load("envs/dev/.env"); err != nil {
+        log.Print("No .env file found")
+		return
+    }
+}
