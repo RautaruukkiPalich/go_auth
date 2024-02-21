@@ -1,0 +1,53 @@
+version: '3.6'
+
+services:
+  database_stage:
+    container_name: DEV_go_auth_users_postgres_container
+    image: postgres:16-alpine
+    env_file:
+      - envs/stage/pg.env
+    ports:
+      - "5433:5432"
+    restart: always
+    volumes:
+      - postgres_stage:/data/postgres
+    networks:
+      - postgres2
+
+  pgadmin_stage:
+    container_name: DEV_go_auth_users_pgadmin_container
+    image: dpage/pgadmin4
+    env_file:
+      - envs/stage/pga.env
+    ports:
+      - "5051:80"
+    depends_on:
+      - database_stage
+    links:
+      - database_stage
+    restart: always
+    volumes:
+      - pgadmin_stage:/var/lib/pgadmin
+    networks:
+      - postgres2
+
+  app_stage:
+    container_name: DEV_go_auth_users_app_container
+    build: .
+    env_file:
+      - envs/stage/.env
+    ports:
+      - "8081:8080"
+    restart: always
+    depends_on:
+      - database_stage
+    networks:
+      - postgres2
+
+volumes:
+    postgres_stage:
+    pgadmin_stage:
+
+networks:
+  postgres2:
+    driver: bridge

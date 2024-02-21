@@ -1,0 +1,53 @@
+version: '3.6'
+
+services:
+  database:
+    container_name: go_auth_users_postgres_container
+    image: postgres:16-alpine
+    env_file:
+      - envs/prod/pg.env
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    restart: always
+    volumes:
+      - postgres:/data/postgres
+    networks:
+      - postgres
+
+  pgadmin:
+    container_name: go_auth_users_pgadmin_container
+    image: dpage/pgadmin4
+    env_file:
+      - envs/prod/pga.env
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      - database
+    links:
+      - database
+    restart: always
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - postgres
+
+  app:
+    container_name: go_auth_users_app_container
+    build: .
+    env_file:
+      - envs/prod/.env
+    ports:
+      - "${HOST_PORT:-8080}:8080"
+    restart: always
+    depends_on:
+      - database
+    networks:
+      - postgres
+
+volumes:
+    postgres:
+    pgadmin:
+
+networks:
+  postgres:
+    driver: bridge
