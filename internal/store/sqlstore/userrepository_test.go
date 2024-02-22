@@ -29,7 +29,7 @@ func TestUserRepository_FindById(t *testing.T) {
 	s := sqlstore.New(db)
 
 	// Test not existing user
-	id := 12345
+	id := 0
 	_, err := s.User().FindById(id)
 	assert.EqualError(t, err, store.ErrRecordNotFound.Error())
 

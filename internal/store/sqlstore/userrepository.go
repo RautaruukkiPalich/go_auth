@@ -3,6 +3,7 @@ package sqlstore
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"strings"
 	"time"
 
@@ -39,7 +40,8 @@ func (r *UserRepository) Create(u *model.User) (*model.User, error) {
 	).Scan(&u.Id)
 	
 	if err != nil {
-		return nil, err
+		log.Printf("User: %v, err: %v; type: %T", u.Username, err, err)
+		return nil, store.ErrInternalServerError
 	}
 	
 	return u, nil
@@ -62,7 +64,8 @@ func (r *UserRepository) FindById(id int) (*model.User, error) {
 		if err == sql.ErrNoRows {
 			return nil, store.ErrRecordNotFound
 		} 
-		return nil, err
+		log.Printf("User: %v, err: %v; type: %T", u.Username, err, err)
+		return nil, store.ErrInternalServerError
 	}
 	
 	return u, nil
@@ -85,7 +88,8 @@ func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 		if err == sql.ErrNoRows {
 			return nil, store.ErrRecordNotFound
 		} 
-		return nil, err
+		log.Printf("User: %v, err: %v; type: %T", u.Username, err, err)
+		return nil, store.ErrInternalServerError
 	}
 	
 	return u, nil
@@ -108,7 +112,8 @@ func (r *UserRepository) FindBySlug(slug string) (*model.User, error) {
 		if err == sql.ErrNoRows {
 			return nil, store.ErrRecordNotFound
 		} 
-		return nil, err
+		log.Printf("User: %v, err: %v; type: %T", u.Username, err, err)
+		return nil, store.ErrInternalServerError
 	}
 	
 	return u, nil
@@ -131,12 +136,12 @@ func (r *UserRepository) Auth(u *model.User) (string, error) {
 func (r *UserRepository) UpdatePassword(u *model.User, password string) (error) {
 	err := u.ValidatePassword(password)
 	if err != nil {
-		return errors.New(err.Error())
+		return err
 	}
 
 	hashedPassword, err := model.EncryptPassword(password)
 	if err != nil {
-		return errors.New(err.Error())
+		return err
 	}
 
 	_, err = r.sqlstore.db.Exec(
@@ -147,7 +152,8 @@ func (r *UserRepository) UpdatePassword(u *model.User, password string) (error) 
 		u.Id,
 	)
 	if err != nil {
-		return errors.New(err.Error())
+		log.Printf("User: %v, err: %v; type: %T", u.Username, err, err)
+		return store.ErrInternalServerError
 	}	
 
 	return nil
@@ -168,7 +174,8 @@ func (r *UserRepository) UpdateUsername(u *model.User, username string) (error) 
 			case store.ErrRecordNotFound:
 				break
 			default:
-				return errors.New(err.Error())
+				log.Printf("User: %v, err: %v; type: %T", u.Username, err, err)
+				return store.ErrInternalServerError
 			}
 		}
 	}
@@ -181,7 +188,8 @@ func (r *UserRepository) UpdateUsername(u *model.User, username string) (error) 
 		u.Id,
 	)
 	if err != nil {
-		return errors.New(err.Error())
+		log.Printf("User: %v, err: %v; type: %T", u.Username, err, err)
+		return store.ErrInternalServerError
 	}
 
 	return nil

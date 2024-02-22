@@ -1,9 +1,9 @@
 package model
 
 import (
-	"errors"
 	"regexp"
 	"time"
+	"log"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,12 +19,6 @@ type User struct {
 	UpdatedAt          time.Time `json:"updated_at,omitempty"`
 }
 
-var (
-	ErrorContentUsername = errors.New("use latin letters only")
-	ErrorContentPassword = errors.New("use letters and digits only")
-	ErrorLenUsername = errors.New("username length must be between 3 and 20")
-	ErrorLenPassword = errors.New("password length must be 3 synbols at least")
-)
 
 func (u *User) BeforeCreate() error {
 	if err := u.Validate(); err != nil {
@@ -57,12 +51,12 @@ func (u *User) ValidateUsername(username string) (err error) {
 	// check username length
 	matched, _ := regexp.MatchString(`^.{3,20}$`, username)
 	if !matched {
-		return ErrorLenUsername
+		return ErrLenUsername
 	}
 	// check username contains latin letters only
 	matched, _ = regexp.MatchString(`^[A-z]+$`, username)
 	if !matched {
-		return ErrorContentUsername
+		return ErrContentUsername
 	}
 
 	return nil
@@ -70,16 +64,16 @@ func (u *User) ValidateUsername(username string) (err error) {
 
 func (u *User) ValidatePassword(password string) (err error) {
 	
-	// check password length
-	matched, _ := regexp.MatchString(`^.{3,}$`, password)
+	// check password length (72 symbols - encrypt limit)
+	matched, _ := regexp.MatchString(`^.{3,72}$`, password)
 	if !matched {
-		return ErrorLenPassword
+		return ErrLenPassword
 	}
 
 	// check password contains leters and digits only
 	matched, _ = regexp.MatchString(`^[\w\d]*$`, password)
 	if !matched {
-		return ErrorContentPassword
+		return ErrContentPassword
 	}
 
 	return nil
@@ -88,8 +82,9 @@ func (u *User) ValidatePassword(password string) (err error) {
 func EncryptPassword(password string) (string, error) {
 	b, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
-		return "", err
+		log.Print(err)
+		return "", ErrEncryptPassword
 	}
-
+// 
 	return string(b), nil
 }
