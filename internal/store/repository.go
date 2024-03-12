@@ -2,7 +2,7 @@ package store
 
 import "github.com/rautaruukkipalich/go_auth/internal/model"
 
-type IUserRepository interface {
+type UserRepository interface {
 	Create(*model.User) (*model.User, error)
 	Auth(*model.User) (string, error)
 

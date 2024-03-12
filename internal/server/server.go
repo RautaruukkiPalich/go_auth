@@ -14,10 +14,10 @@ import (
 type Server struct {
 	router *mux.Router
 	logger *logrus.Logger
-	store  store.IStore
+	store  store.Store
 }
 
-func newServer(store store.IStore, log_level string) *Server {
+func newServer(store store.Store, logLevel string) *Server {
 	s := &Server{
 		router: mux.NewRouter(),
 		logger: logrus.New(),
@@ -25,7 +25,7 @@ func newServer(store store.IStore, log_level string) *Server {
 	}
 
 	s.configureRouter()
-	s.configureLogger(log_level)
+	s.configureLogger(logLevel)
 
 	return s
 }
@@ -45,33 +45,22 @@ func (s *Server) configureRouter() {
 	).HandlerFunc(httpSwagger.WrapHandler)
 
 	s.router.HandleFunc(
-		"/register",
-		s.Register(),
+		"/register", s.Register(),
 	).Methods("POST")
 
 	s.router.HandleFunc(
-		"/auth",
-		s.Auth(),
+		"/auth", s.Auth(),
 	).Methods("POST")
 
 	s.router.Handle(
-		"/me",
-		s.AuthMiddleware(
-			http.Handler(s.Me()),
-		),
+		"/me", s.AuthMiddleware(http.Handler(s.Me())),
 	).Methods("GET")
 
 	s.router.Handle(
-		"/me",
-		s.AuthMiddleware(
-			http.Handler(s.EditUsername()),
-		),
+		"/me", s.AuthMiddleware(http.Handler(s.EditUsername())),
 	).Methods("PATCH")
 
 	s.router.Handle(
-		"/me/password",
-		s.AuthMiddleware(
-			http.Handler(s.EditPassword()),
-		),
+		"/me/password",	s.AuthMiddleware(http.Handler(s.EditPassword())),
 	).Methods("PATCH")
 }

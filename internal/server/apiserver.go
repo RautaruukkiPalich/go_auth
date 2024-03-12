@@ -19,13 +19,18 @@ func Start(config *Config) error {
 	}
 	defer db.Close()
 
-	srv := newServer(
-		sqlstore.New(db),
+	SQLstore, err := sqlstore.New(db)
+	if err != nil {
+		return err
+	}
+
+	s := newServer(
+		SQLstore,
 		config.LogLevel,
 	)
 
 	if err := migrateTables(db); err != nil {
-		srv.logger.Error(err)
+		s.logger.Error(err)
 	}
 
 	c := newCors(
@@ -34,14 +39,16 @@ func Start(config *Config) error {
 
 	server := &http.Server{
 		Addr: config.BindAddress,
-		Handler: c.Handler(srv.router),
+		Handler: c.Handler(s.router),
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 	}
 
-	srv.logger.Info(fmt.Sprintf("server up on '%s'; log level '%s'",
-		server.Addr,
-		srv.logger.Level,
+	s.logger.Info(
+		fmt.Sprintf(
+			"server up on '%s'; log level '%s'",
+			server.Addr,
+			s.logger.Level,
 		),
 	)
 
@@ -74,7 +81,6 @@ func migrateTables(db *sql.DB) error {
 		driver,
 	)
 	if err != nil {
-		fmt.Println("err :", err)
 		return err
 	}
 

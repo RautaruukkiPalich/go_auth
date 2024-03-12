@@ -16,7 +16,7 @@ type (
 	}
 
 	userResponse struct {
-		Id                 int       `json:"id"`
+		ID                 int       `json:"id"`
 		Username           string    `json:"username"`
 		CreatedAt          time.Time `json:"created_at"`
 		LastPasswordChange time.Time `json:"last_password_change"`
@@ -41,13 +41,12 @@ type (
 )
 
 const (
-	UserKey userKey = "user"
+	UserKey userKey = "userID"
 )
-
 
 func responseFromUser(user *model.User) *userResponse {
 	return &userResponse{
-		Id:                 user.Id,
+		ID:                 user.Id,
 		Username:           user.Username,
 		CreatedAt:          user.CreatedAt,
 		LastPasswordChange: user.LastPasswordChange,
@@ -71,7 +70,7 @@ func (s *Server) Register() http.HandlerFunc {
 		request := &userAuthRequest{}
 
 		if err := s.getFormFromBody(r, request); err != nil {
-			s.error(w, r, http.StatusBadRequest, err)
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusBadRequest})
 			return
 		}
 
@@ -82,7 +81,7 @@ func (s *Server) Register() http.HandlerFunc {
 
 		_, err := s.store.User().Create(u)
 		if err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnprocessableEntity})
 			return
 		}
 
@@ -105,22 +104,22 @@ func (s *Server) Auth() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		request := &userAuthRequest{}
+		var form userAuthRequest
 
-		if err := s.getFormFromBody(r, request); err != nil {
-			s.error(w, r, http.StatusBadRequest, err)
+		if err := s.getFormFromBody(r, &form); err != nil {
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusBadRequest})
 			return
 		}
 
 		u := &model.User{
-			Username: request.Username,
-			Password: request.Password,
+			Username: form.Username,
+			Password: form.Password,
 		}
 
 		token, err := s.store.User().Auth(u)
 
 		if err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnprocessableEntity})
 			return
 		}
 
@@ -144,7 +143,7 @@ func (s *Server) Me() http.HandlerFunc {
 
 		user, err := s.getUserFromContext(r)
 		if err != nil {
-			s.error(w, r, http.StatusBadRequest, err)
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusBadRequest})
 			return
 		}
 
@@ -165,20 +164,22 @@ func (s *Server) Me() http.HandlerFunc {
 // @Router			/me/password [patch]
 func (s *Server) EditPassword() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		request := &changePassword{}
 
-		if err := s.getFormFromBody(r, request); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+		var form changePassword
+
+		if err := s.getFormFromBody(r, &form); err != nil {
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnprocessableEntity})
 			return
 		}
 
 		user, err := s.getUserFromContext(r)
 		if err != nil {
-			s.error(w, r, http.StatusBadRequest, err)
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusBadRequest})
+			return
 		}
 
-		if err = s.store.User().UpdatePassword(user, request.Password); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+		if err = s.store.User().UpdatePassword(user, form.Password); err != nil {
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnprocessableEntity})
 			return
 		}
 
@@ -200,21 +201,21 @@ func (s *Server) EditPassword() http.HandlerFunc {
 func (s *Server) EditUsername() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		request := &changeUsername{}
+		var form changeUsername
 
-		if err := s.getFormFromBody(r, request); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+		if err := s.getFormFromBody(r, form); err != nil {
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnprocessableEntity})
 			return
 		}
 
 		user, err := s.getUserFromContext(r)
 		if err != nil {
-			s.error(w, r, http.StatusBadRequest, err)
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusBadRequest})
 			return
 		}
 
-		if err = s.store.User().UpdateUsername(user, request.Username); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+		if err = s.store.User().UpdateUsername(user, form.Username); err != nil {
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnprocessableEntity})
 			return
 		}
 

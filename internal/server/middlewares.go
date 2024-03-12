@@ -9,24 +9,23 @@ import (
 	"github.com/rautaruukkipalich/go_auth/internal/utils"
 )
 
+var ErrInvalidToken = errors.New("invalid token")
+
 func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			authHeaderChunks := strings.Split(authHeader, " ")
-			err_msg := "invalid token"
 
 			if len(authHeaderChunks) != 2 {
-				s.logger.Error(err_msg)
-				s.error(w, r, http.StatusUnauthorized, errors.New(err_msg))
+				s.error(w, r, errorResponse{Error: ErrInvalidToken.Error(), Code: http.StatusUnauthorized})
 				return
 			}
 
 			userId, err := utils.DecodeJWTToken(authHeaderChunks[1])
 
 			if err != nil || userId == 0 {
-				s.logger.Error(err_msg)
-				s.error(w, r, http.StatusUnauthorized, errors.New(err_msg))
+				s.error(w, r, errorResponse{Error: ErrInvalidToken.Error(), Code: http.StatusUnauthorized})
 				return
 			}
 

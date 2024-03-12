@@ -1,5 +1,5 @@
 package store
 
-type IStore interface {
-	User() IUserRepository
+type Store interface {
+	User() UserRepository
 }

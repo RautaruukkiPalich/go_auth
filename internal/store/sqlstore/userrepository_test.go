@@ -13,7 +13,7 @@ import (
 func TestUserRepository_Create(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
-	s := sqlstore.New(db)
+	s, _ := sqlstore.New(db)
 
 	u, err := s.User().Create(model.TestUser(t))
 	assert.NoError(t, err)
@@ -26,7 +26,7 @@ func TestUserRepository_Create(t *testing.T) {
 func TestUserRepository_FindById(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
-	s := sqlstore.New(db)
+	s, _ :=  sqlstore.New(db)
 
 	// Test not existing user
 	id := 0
@@ -44,7 +44,7 @@ func TestUserRepository_FindById(t *testing.T) {
 func TestUserRepository_FindByUsername(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
-	s := sqlstore.New(db)
+	s, _ := sqlstore.New(db)
 
 	// Test not existing user
 	username := ""
@@ -62,7 +62,7 @@ func TestUserRepository_FindByUsername(t *testing.T) {
 func TestUserRepository_FindBySlug(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
-	s := sqlstore.New(db)
+	s, _ := sqlstore.New(db)
 
 	// Test not existing user
 	slug := ""
@@ -80,7 +80,7 @@ func TestUserRepository_FindBySlug(t *testing.T) {
 func TestUserRepository_Auth(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
-	s := sqlstore.New(db)
+	s, _ := sqlstore.New(db)
 	
 	u, _ := s.User().Create(model.TestUser(t))
 	// Test valid user
@@ -98,7 +98,7 @@ func TestUserRepository_Auth(t *testing.T) {
 func TestUserRepository_UpdatePassword(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
-	s := sqlstore.New(db)
+	s, _ := sqlstore.New(db)
 
 	u, _ := s.User().Create(model.TestUser(t))
 	new_password := "password123"
@@ -123,7 +123,7 @@ func TestUserRepository_UpdatePassword(t *testing.T) {
 func TestUserRepository_UpdateUsername(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
-	s := sqlstore.New(db)
+	s, _ := sqlstore.New(db)
 
 	u, _ := s.User().Create(model.TestUser(t))
 	

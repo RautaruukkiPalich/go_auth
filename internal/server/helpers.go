@@ -8,7 +8,7 @@ import (
 )
 
 func (s *Server) getFormFromBody(r *http.Request, form interface{}) (err error) {
-	if err := json.NewDecoder(r.Body).Decode(&form); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(form); err != nil {
 		return err
 	}
 	return nil
@@ -24,13 +24,15 @@ func (s *Server) getUserFromContext(r *http.Request) (*model.User, error) {
 	return user, nil
 }
 
-func (s *Server) error(w http.ResponseWriter, r *http.Request, code int, err error) {
-	s.respond(w, r, code, errorResponse{Error: err.Error(), Code: code})
+func (s *Server) error(w http.ResponseWriter, r *http.Request, err errorResponse) {
+	s.logger.Printf("error: %v", err)
+	s.respond(w, r, err.Code, err)
 }
 
-func (s *Server) respond(w http.ResponseWriter, r *http.Request, code int, data interface{}) {
+func (s *Server) respond(w http.ResponseWriter, r *http.Request, code int, data any) {
 	w.WriteHeader(code)
 	if data != nil {
+		w.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(data)
 	}
 }

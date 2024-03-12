@@ -12,11 +12,6 @@ import (
 	"github.com/rautaruukkipalich/go_auth/internal/utils"
 )
 
-type UserRepository struct {
-	sqlstore *Store
-}
-
-
 func (r *UserRepository) Create(u *model.User) (*model.User, error) {
 	if err := u.BeforeCreate(); err != nil {
 		return nil, err
