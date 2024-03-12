@@ -119,7 +119,7 @@ func (s *Server) Auth() http.HandlerFunc {
 		token, err := s.store.User().Auth(u)
 
 		if err != nil {
-			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnprocessableEntity})
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnauthorized})
 			return
 		}
 
