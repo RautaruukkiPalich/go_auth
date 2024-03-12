@@ -24,8 +24,7 @@ func (r *UserRepository) Create(u *model.User) (*model.User, error) {
 	u.UpdatedAt = utcNow
 	u.LastPasswordChange = utcNow
 
-	err := r.sqlstore.db.QueryRow(
-		"insert into users (username, slug, hashed_password, last_password_change, created_at, updated_at) values ($1, $2, $3, $4, $5, $6) returning id",
+	err := r.stmts.insertUser.QueryRow(
 		u.Username, 
 		u.Slug,
 		u.HashedPassword, 
@@ -44,9 +43,9 @@ func (r *UserRepository) Create(u *model.User) (*model.User, error) {
 
 func (r *UserRepository) FindById(id int) (*model.User, error) {
 	u := &model.User{}
-	if err := r.sqlstore.db.QueryRow(
-		"select id, username, slug, hashed_password, last_password_change, created_at, updated_at from users where id = $1",
-		id,
+
+	err := r.stmts.findUserByID.QueryRow(
+		id, 
 	).Scan(
 		&u.Id,
 		&u.Username,
@@ -55,7 +54,9 @@ func (r *UserRepository) FindById(id int) (*model.User, error) {
 		&u.LastPasswordChange,
 		&u.CreatedAt,
 		&u.UpdatedAt,
-	); err != nil {
+	)
+
+	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, store.ErrRecordNotFound
 		} 
@@ -68,9 +69,9 @@ func (r *UserRepository) FindById(id int) (*model.User, error) {
 
 func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 	u := &model.User{}
-	if err := r.sqlstore.db.QueryRow(
-		"select id, username, slug, hashed_password, last_password_change, created_at, updated_at from users where username = $1",
-		username,
+
+	err := r.stmts.findUserByUsername.QueryRow(
+		username, 
 	).Scan(
 		&u.Id,
 		&u.Username,
@@ -79,7 +80,9 @@ func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 		&u.LastPasswordChange,
 		&u.CreatedAt,
 		&u.UpdatedAt,
-	); err != nil {
+	)
+
+	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, store.ErrRecordNotFound
 		} 
@@ -92,9 +95,9 @@ func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 
 func (r *UserRepository) FindBySlug(slug string) (*model.User, error) {
 	u := &model.User{}
-	if err := r.sqlstore.db.QueryRow(
-		"select id, username, slug, hashed_password, last_password_change, created_at, updated_at from users where slug = $1",
-		slug,
+
+	err := r.stmts.findUserBySlug.QueryRow(
+		slug, 
 	).Scan(
 		&u.Id,
 		&u.Username,
@@ -103,7 +106,9 @@ func (r *UserRepository) FindBySlug(slug string) (*model.User, error) {
 		&u.LastPasswordChange,
 		&u.CreatedAt,
 		&u.UpdatedAt,
-	); err != nil {
+	)
+
+	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, store.ErrRecordNotFound
 		} 
@@ -139,13 +144,13 @@ func (r *UserRepository) UpdatePassword(u *model.User, password string) (error) 
 		return err
 	}
 
-	_, err = r.sqlstore.db.Exec(
-		"update users set hashed_password=$1, last_password_change=$2, updated_at=$3 where id = $4",
+	_, err = r.stmts.updatePassword.Exec(
 		hashedPassword,
 		time.Now().UTC(),
 		time.Now().UTC(),
 		u.Id,
 	)
+
 	if err != nil {
 		log.Printf("User: %v, err: %v; type: %T", u.Username, err, err)
 		return store.ErrInternalServerError
@@ -174,7 +179,7 @@ func (r *UserRepository) UpdateUsername(u *model.User, username string) (error) 
 			}
 		}
 	}
-	
+
 	_, err = r.sqlstore.db.Exec(
 		"update users set username=$1, slug=$2, updated_at=$3 where id = $4",
 		username,
