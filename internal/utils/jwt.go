@@ -8,17 +8,22 @@ import (
 	"github.com/rautaruukkipalich/go_auth/internal/model"
 )
 
-type JwtConfig struct {
+type JWTConfig struct {
 	JWT_SECRET_KEY []byte
 	JWT_TTL_SECONDS int
 }
 
-func newJwtConfig() *JwtConfig {
-	return &JwtConfig{
+func newJwtConfig() *JWTConfig {
+	return &JWTConfig{
 		JWT_SECRET_KEY: []byte(GetEnv("JWT_SECRET_KEY", "secretkey")),
 		JWT_TTL_SECONDS: GetEnvAsInt("JWT_TTL_SECONDS", 3600),
 	}
 }
+
+
+var ErrJWTDecode = errors.New("unexpected signing method")
+var ErrJWTEncode = errors.New("JWT token failed to signed")
+
 
 func EncodeJWTToken(u *model.User) (string, error){
 	cfg := newJwtConfig()
@@ -35,7 +40,7 @@ func EncodeJWTToken(u *model.User) (string, error){
 
     signedToken, err := token.SignedString(JWT_SECRET_KEY)
     if err != nil {
-        return "", errors.New("JWT token failed to signed")
+        return "", ErrJWTEncode
     }
 	return signedToken, nil
 }
@@ -50,7 +55,7 @@ func DecodeJWTToken(token string) (int, error) {
 		claims, 
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected signing method")
+				return nil, ErrJWTDecode
 			}
 			return JWT_SECRET_KEY, nil
 		},
