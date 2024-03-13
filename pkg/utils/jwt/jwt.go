@@ -1,10 +1,12 @@
-package utils
+package jwt
 
 import (
 	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/rautaruukkipalich/go_auth/pkg/utils/env"
+
 )
 
 type JWTConfig struct {
@@ -14,8 +16,8 @@ type JWTConfig struct {
 
 func newJwtConfig() *JWTConfig {
 	return &JWTConfig{
-		JWT_SECRET_KEY: []byte(GetEnv("JWT_SECRET_KEY", "secretkey")),
-		JWT_TTL_SECONDS: GetEnvAsInt("JWT_TTL_SECONDS", 3600),
+		JWT_SECRET_KEY: []byte(env.GetEnv("JWT_SECRET_KEY", "secretkey")),
+		JWT_TTL_SECONDS: env.GetEnvAsInt("JWT_TTL_SECONDS", 3600),
 	}
 }
 
@@ -25,21 +27,19 @@ var ErrJWTEncode = errors.New("JWT token failed to signed")
 
 
 func EncodeJWTToken(id int) (string, error){
-	cfg := newJwtConfig()
-	JWT_SECRET_KEY  := []byte(cfg.JWT_SECRET_KEY)
-	JWT_TTL_SECONDS := cfg.JWT_TTL_SECONDS
+	jwtCfg := newJwtConfig()
 
 	payload := jwt.MapClaims{
         "sub":  id,
         "exp":  time.Now().Add(
-			time.Second * time.Duration(JWT_TTL_SECONDS),
+			time.Second * time.Duration(jwtCfg.JWT_TTL_SECONDS),
 			).Unix(),
     }
 
     // Создаем новый JWT-токен и подписываем его по алгоритму HS256
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 
-    signedToken, err := token.SignedString(JWT_SECRET_KEY)
+    signedToken, err := token.SignedString(jwtCfg.JWT_SECRET_KEY)
     if err != nil {
         return "", ErrJWTEncode
     }
@@ -47,8 +47,7 @@ func EncodeJWTToken(id int) (string, error){
 }
 
 func DecodeJWTToken(token string) (int, error) {
-	cfg := newJwtConfig()
-	JWT_SECRET_KEY  := []byte(cfg.JWT_SECRET_KEY)
+	jwtCfg := newJwtConfig()
 
 	claims := jwt.MapClaims{}
 	_, err := jwt.ParseWithClaims(
@@ -58,7 +57,7 @@ func DecodeJWTToken(token string) (int, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, ErrJWTDecode
 			}
-			return JWT_SECRET_KEY, nil
+			return jwtCfg.JWT_SECRET_KEY, nil
 		},
 	)
 

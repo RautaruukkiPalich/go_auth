@@ -7,7 +7,7 @@ import (
 
 	"github.com/rautaruukkipalich/go_auth/internal/model"
 	"github.com/rautaruukkipalich/go_auth/internal/store"
-	util "github.com/rautaruukkipalich/go_auth/pkg/utils"
+	"github.com/rautaruukkipalich/go_auth/pkg/utils/jwt"
 )
 
 type UserRepository struct {
@@ -90,7 +90,7 @@ func (r *UserRepository) Auth(u *model.User) (string, error) {
 		return "", store.ErrRecordNotFound
 	}
 
-	return util.EncodeJWTToken(user.Id)
+	return jwt.EncodeJWTToken(user.Id)
 }
 
 func (r *UserRepository) SetPassword(u *model.User, password string) (error) {
