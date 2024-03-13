@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/rautaruukkipalich/go_auth/internal/utils"
+	util "github.com/rautaruukkipalich/go_auth/pkg/utils"
 )
 
 var ErrInvalidToken = errors.New("invalid token")
@@ -22,7 +22,7 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			userId, err := utils.DecodeJWTToken(authHeaderChunks[1])
+			userId, err := util.DecodeJWTToken(authHeaderChunks[1])
 
 			if err != nil || userId == 0 {
 				s.error(w, r, errorResponse{Error: ErrInvalidToken.Error(), Code: http.StatusUnauthorized})

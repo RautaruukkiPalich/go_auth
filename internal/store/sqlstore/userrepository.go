@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	model "github.com/rautaruukkipalich/go_auth/internal/model"
+	"github.com/rautaruukkipalich/go_auth/internal/model"
 	"github.com/rautaruukkipalich/go_auth/internal/store"
-	"github.com/rautaruukkipalich/go_auth/internal/utils"
+	util "github.com/rautaruukkipalich/go_auth/pkg/utils"
 )
 
 func (r *UserRepository) Create(u *model.User) (*model.User, error) {
@@ -130,7 +130,7 @@ func (r *UserRepository) Auth(u *model.User) (string, error) {
 		return "", store.ErrRecordNotFound
 	}
 
-	return utils.EncodeJWTToken(user)
+	return util.EncodeJWTToken(user.Id)
 }
 
 func (r *UserRepository) SetPassword(u *model.User, password string) (error) {

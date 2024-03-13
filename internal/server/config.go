@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	utl "github.com/rautaruukkipalich/go_auth/internal/utils"
+	util "github.com/rautaruukkipalich/go_auth/pkg/utils"
 )
 
 type (
@@ -23,21 +23,21 @@ type (
 )
 
 func NewConfig() *Config {
-	LOG_LEVEL := utl.GetEnv("LOG_LEVEL", "debug")
+	LOG_LEVEL := util.GetEnv("LOG_LEVEL", "debug")
 
 	BIND_ADDR := fmt.Sprintf(
 		"%s:%s",
-		utl.GetEnv("HOST_ADDR", "127.0.0.1"),
-		utl.GetEnv("HOST_PORT", "8081"),
+		util.GetEnv("HOST_ADDR", "127.0.0.1"),
+		util.GetEnv("HOST_PORT", "8081"),
 	)
 
 	DB_URI := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		utl.GetEnv("DB_USER", "postgres"),
-		utl.GetEnv("DB_PASS", "postgres"),
-		utl.GetEnv("DB_HOST", "localhost"),
-		utl.GetEnv("DB_PORT", "5432"),
-		utl.GetEnv("DB_NAME", "postgres"),
+		util.GetEnv("DB_USER", "postgres"),
+		util.GetEnv("DB_PASS", "postgres"),
+		util.GetEnv("DB_HOST", "localhost"),
+		util.GetEnv("DB_PORT", "5432"),
+		util.GetEnv("DB_NAME", "postgres"),
 	)
 
 	return &Config{

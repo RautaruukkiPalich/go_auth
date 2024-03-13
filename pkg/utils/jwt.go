@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/rautaruukkipalich/go_auth/internal/model"
 )
 
 type JWTConfig struct {
@@ -25,14 +24,16 @@ var ErrJWTDecode = errors.New("unexpected signing method")
 var ErrJWTEncode = errors.New("JWT token failed to signed")
 
 
-func EncodeJWTToken(u *model.User) (string, error){
+func EncodeJWTToken(id int) (string, error){
 	cfg := newJwtConfig()
 	JWT_SECRET_KEY  := []byte(cfg.JWT_SECRET_KEY)
 	JWT_TTL_SECONDS := cfg.JWT_TTL_SECONDS
 
 	payload := jwt.MapClaims{
-        "sub":  u.Id,
-        "exp":  time.Now().Add(time.Second * time.Duration(JWT_TTL_SECONDS)).Unix(),
+        "sub":  id,
+        "exp":  time.Now().Add(
+			time.Second * time.Duration(JWT_TTL_SECONDS),
+			).Unix(),
     }
 
     // Создаем новый JWT-токен и подписываем его по алгоритму HS256
