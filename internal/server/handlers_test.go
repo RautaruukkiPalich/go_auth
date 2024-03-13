@@ -57,7 +57,7 @@ func TestServer_HandleRegister(t *testing.T) { //nolint: no cover
 			rr := httptest.NewRecorder()
 
 			var json_data bytes.Buffer
-			json.NewEncoder(&json_data).Encode(tc.payload)
+			_ = json.NewEncoder(&json_data).Encode(tc.payload)
 
 			req, _ := http.NewRequest(http.MethodPost, "/register", &json_data)
 			s.ServeHTTP(rr, req)
@@ -68,11 +68,12 @@ func TestServer_HandleRegister(t *testing.T) { //nolint: no cover
 }
 
 
-func TestServer_HandleAuth(t *testing.T) { //nolint: errcheck
+func TestServer_HandleAuth(t *testing.T) {
 
 	s := newServer(teststore.New(), "info")
-	u := model.TestUser(t)
-	s.store.User().Create(u)
+	u, _ := s.store.User().Create(
+		model.TestUser(t),
+	)
 
 	testCases := []struct {
 		name string
@@ -116,7 +117,7 @@ func TestServer_HandleAuth(t *testing.T) { //nolint: errcheck
 			rr := httptest.NewRecorder()
 
 			var json_data bytes.Buffer
-			json.NewEncoder(&json_data).Encode(tc.payload)
+			_ = json.NewEncoder(&json_data).Encode(tc.payload)
 
 			req, _ := http.NewRequest(http.MethodPost, "/auth", &json_data)
 			s.ServeHTTP(rr, req)
