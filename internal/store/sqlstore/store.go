@@ -8,36 +8,36 @@ import (
 )
 
 const (
-	insertUser = `
+	createUser = `
 		insert
 		into users (username, slug, hashed_password, last_password_change, created_at, updated_at) 
 		values ($1, $2, $3, $4, $5, $6)
 		returning id
 	`
-	findUserByID = `
+	getUserByID = `
 		select
 		id, username, slug, hashed_password, last_password_change, created_at, updated_at 
 		from users 
 		where id = $1
 	`
-	findUserByUsername = `
+	getUserByUsername = `
 		select
 		id, username, slug, hashed_password, last_password_change, created_at, updated_at 
 		from users 
 		where username = $1
 	`
-	findUserBySlug = `
+	getUserBySlug = `
 		select
 		id, username, slug, hashed_password, last_password_change, created_at, updated_at 
 		from users 
 		where slug = $1
 	`
-	updatePassword = `
+	setPassword = `
 		update users 
 		set hashed_password=$1, last_password_change=$2, updated_at=$3 
 		where id = $4
 	`
-	updateUsername = `
+	setUsername = `
 		update users 
 		set username=$1, slug=$2, updated_at=$3 
 		where id = $4
@@ -56,12 +56,22 @@ type (
 	}
 	
 	UserStmts struct {
-		insertUser *sql.Stmt
-		findUserByID *sql.Stmt
-		findUserByUsername *sql.Stmt
-		findUserBySlug *sql.Stmt
-		updatePassword *sql.Stmt
-		updateUsername *sql.Stmt
+		//take: username, slug, hashedPassword, lastPasswordChange, createdAt, updatedAt; 
+		//return: userID 
+		createUser *sql.Stmt
+		//take: userID;
+		//return: userID, username, slug, hashedPassword, lastPasswordChange, createdAt, updatedAt
+		getUserByID *sql.Stmt
+		//take: username;
+		//return: userID, username, slug, hashedPassword, lastPasswordChange, createdAt, updatedAt
+		getUserByUsername *sql.Stmt
+		//take: slug;
+		//return: userID, username, slug, hashedPassword, lastPasswordChange, createdAt, updatedAt
+		getUserBySlug *sql.Stmt
+		//take: hashedPassword, lastPasswordChange, updatedAt, userID
+		setPassword *sql.Stmt
+		//take: username, slug, updatedAt, userID
+		setUsername *sql.Stmt
 	}
 
 )
@@ -80,7 +90,7 @@ func New(db *sql.DB) (*Store, error) {
 	return store, nil
 }
 
-func (s *Store) User() store.UserRepository {
+func (s *Store) User() store.UserRepositorier {
 	return s.userRepository
 }
 
@@ -97,36 +107,36 @@ func NewUserRepository (s *Store) (*UserRepository, error) {
 }
 
 func prepareStatements(db *sql.DB) (*UserStmts, error) {
-	insertUser, err := db.Prepare(insertUser)
+	createUser, err := db.Prepare(createUser)
 	if err != nil {
 		return nil, err
 	}
-	findUserByID, err := db.Prepare(findUserByID)
+	getUserByID, err := db.Prepare(getUserByID)
 	if err != nil {
 		return nil, err
 	}
-	findUserByUsername, err := db.Prepare(findUserByUsername)
+	getUserByUsername, err := db.Prepare(getUserByUsername)
 	if err != nil {
 		return nil, err
 	}
-	findUserBySlug, err := db.Prepare(findUserBySlug)
+	getUserBySlug, err := db.Prepare(getUserBySlug)
 	if err != nil {
 		return nil, err
 	}
-	updatePassword, err := db.Prepare(updatePassword)
+	setPassword, err := db.Prepare(setPassword)
 	if err != nil {
 		return nil, err
 	}
-	updateUsername, err := db.Prepare(updateUsername)
+	setUsername, err := db.Prepare(setUsername)
 	if err != nil {
 		return nil, err
 	}
 	return &UserStmts{
-		insertUser: insertUser,
-		findUserByID: findUserByID,
-		findUserByUsername: findUserByUsername,
-		findUserBySlug: findUserBySlug,
-		updatePassword: updatePassword,
-		updateUsername: updateUsername,
+		createUser: createUser,
+		getUserByID: getUserByID,
+		getUserByUsername: getUserByUsername,
+		getUserBySlug: getUserBySlug,
+		setPassword: setPassword,
+		setUsername: setUsername,
 	}, nil
 }

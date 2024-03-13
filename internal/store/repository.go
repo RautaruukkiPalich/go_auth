@@ -2,14 +2,28 @@ package store
 
 import "github.com/rautaruukkipalich/go_auth/internal/model"
 
-type UserRepository interface {
-	Create(*model.User) (*model.User, error)
-	Auth(*model.User) (string, error)
+type UserRepositorier interface {
+	UserCreater
+	UserAuthenticater
+	UserGetter
+	UserSetter
+}
 
-	FindById(int) (*model.User, error)
-	FindByUsername(string) (*model.User, error)
-	FindBySlug(string) (*model.User, error)
-	
-	UpdatePassword(*model.User, string) (error)
-	UpdateUsername(*model.User, string) (error) 
+type UserCreater interface {
+	Create(*model.User) (*model.User, error)
+}
+
+type UserAuthenticater interface {
+	Auth(*model.User) (string, error)
+}
+
+type UserGetter interface {
+	GetById(int) (*model.User, error)
+	GetByUsername(string) (*model.User, error)
+	GetBySlug(string) (*model.User, error)
+}
+
+type UserSetter interface {
+	SetPassword(*model.User, string) (error)
+	SetUsername(*model.User, string) (error) 
 }

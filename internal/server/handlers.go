@@ -178,7 +178,7 @@ func (s *Server) EditPassword() http.HandlerFunc {
 			return
 		}
 
-		if err = s.store.User().UpdatePassword(user, form.Password); err != nil {
+		if err = s.store.User().SetPassword(user, form.Password); err != nil {
 			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnprocessableEntity})
 			return
 		}
@@ -214,7 +214,7 @@ func (s *Server) EditUsername() http.HandlerFunc {
 			return
 		}
 
-		if err = s.store.User().UpdateUsername(user, form.Username); err != nil {
+		if err = s.store.User().SetUsername(user, form.Username); err != nil {
 			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnprocessableEntity})
 			return
 		}

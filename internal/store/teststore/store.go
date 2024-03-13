@@ -10,15 +10,18 @@ type Store struct {
 }
 
 func New() *Store {
-	return &Store{}
+	store := &Store{}
+	store.userRepository = NewUserRepo(store)
+	return store
 }
 
-func (s *Store) User() store.UserRepository {
-	if s.userRepository == nil {
-		s.userRepository = &UserRepository{
-			store: s,
-			users: make(map[string]*model.User),
-		}
+func NewUserRepo(s *Store) *UserRepository {
+	return &UserRepository{
+		store: s,
+		users: make(map[string]*model.User),
 	}
+}
+
+func (s *Store) User() store.UserRepositorier {
 	return s.userRepository
 }

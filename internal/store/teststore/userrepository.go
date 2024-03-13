@@ -36,7 +36,7 @@ func (r *UserRepository) Create(u *model.User) (*model.User, error) {
 	return r.users[u.Username], nil
 }
 
-func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
+func (r *UserRepository) GetByUsername(username string) (*model.User, error) {
 	
 	u := r.users[username]
 
@@ -47,7 +47,7 @@ func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 	return u, nil
 }
 
-func (r *UserRepository) FindById(id int) (*model.User, error) {
+func (r *UserRepository) GetById(id int) (*model.User, error) {
 	
 	var u *model.User
 	
@@ -64,7 +64,7 @@ func (r *UserRepository) FindById(id int) (*model.User, error) {
 	return u, nil
 }
 
-func (r *UserRepository) FindBySlug(slug string) (*model.User, error) {
+func (r *UserRepository) GetBySlug(slug string) (*model.User, error) {
 	var u *model.User
 	
 	for _, val := range r.users {
@@ -81,7 +81,7 @@ func (r *UserRepository) FindBySlug(slug string) (*model.User, error) {
 }
 
 func (r *UserRepository) Auth(u *model.User) (string, error) {
-	user, err := r.FindByUsername(u.Username)
+	user, err := r.GetByUsername(u.Username)
 
 	if err != nil {
 		return "", store.ErrRecordNotFound
@@ -93,7 +93,7 @@ func (r *UserRepository) Auth(u *model.User) (string, error) {
 	return utils.EncodeJWTToken(user)
 }
 
-func (r *UserRepository) UpdatePassword(u *model.User, password string) (error) {
+func (r *UserRepository) SetPassword(u *model.User, password string) (error) {
 	err := u.ValidatePassword(password)
 	if err != nil {
 		return errors.New(err.Error())
@@ -109,7 +109,7 @@ func (r *UserRepository) UpdatePassword(u *model.User, password string) (error) 
 	return nil
 }
 
-func (r *UserRepository) UpdateUsername(u *model.User, username string) (error) {
+func (r *UserRepository) SetUsername(u *model.User, username string) (error) {
 	err := u.ValidateUsername(username)
 	if err != nil {
 		return errors.New(err.Error())

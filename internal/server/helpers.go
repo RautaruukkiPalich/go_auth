@@ -16,7 +16,7 @@ func (s *Server) getFormFromBody(r *http.Request, form interface{}) (err error) 
 
 func (s *Server) getUserFromContext(r *http.Request) (*model.User, error) {
 	ctx := r.Context()
-	user, err := s.store.User().FindById(ctx.Value(UserKey).(int))
+	user, err := s.store.User().GetById(ctx.Value(UserKey).(int))
 
 	if err != nil {
 		return nil, err
@@ -33,6 +33,9 @@ func (s *Server) respond(w http.ResponseWriter, r *http.Request, code int, data 
 	w.WriteHeader(code)
 	if data != nil {
 		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(data)
+		err := json.NewEncoder(w).Encode(data)
+		if err != nil {
+			s.logger.Printf("error: %v", err)
+		}
 	}
 }

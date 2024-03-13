@@ -23,56 +23,56 @@ func TestUserRepository_Create(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestUserRepository_FindById(t *testing.T) {
+func TestUserRepository_GetById(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
 	s, _ :=  sqlstore.New(db)
 
 	// Test not existing user
 	id := 0
-	_, err := s.User().FindById(id)
+	_, err := s.User().GetById(id)
 	assert.EqualError(t, err, store.ErrRecordNotFound.Error())
 
 	u, _ := s.User().Create(model.TestUser(t))
 
 	// Test existing user
-	n, err := s.User().FindById(u.Id)
+	n, err := s.User().GetById(u.Id)
 	assert.NoError(t, err)
 	assert.NotNil(t, n)
 }
 
-func TestUserRepository_FindByUsername(t *testing.T) {
+func TestUserRepository_GetByUsername(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
 	s, _ := sqlstore.New(db)
 
 	// Test not existing user
 	username := ""
-	_, err := s.User().FindByUsername(username)
+	_, err := s.User().GetByUsername(username)
 	assert.EqualError(t, err, store.ErrRecordNotFound.Error())
 
 	u, _ := s.User().Create(model.TestUser(t))
 
 	// Test existing user
-	n, err := s.User().FindByUsername(u.Username)
+	n, err := s.User().GetByUsername(u.Username)
 	assert.NoError(t, err)
 	assert.NotNil(t, n)
 }
 
-func TestUserRepository_FindBySlug(t *testing.T) {
+func TestUserRepository_GetBySlug(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
 	s, _ := sqlstore.New(db)
 
 	// Test not existing user
 	slug := ""
-	_, err := s.User().FindBySlug(slug)
+	_, err := s.User().GetBySlug(slug)
 	assert.EqualError(t, err, store.ErrRecordNotFound.Error())
 
 	u, _ := s.User().Create(model.TestUser(t))
 
 	// Test existing user
-	n, err := s.User().FindBySlug(u.Slug)
+	n, err := s.User().GetBySlug(u.Slug)
 	assert.NoError(t, err)
 	assert.NotNil(t, n)
 }
@@ -95,7 +95,7 @@ func TestUserRepository_Auth(t *testing.T) {
 	assert.Len(t, token, 0)
 }
 
-func TestUserRepository_UpdatePassword(t *testing.T) {
+func TestUserRepository_SetPassword(t *testing.T) {
 	db, teardown := sqlstore.TestDB(t, databaseUrl)
 	defer teardown("users")
 	s, _ := sqlstore.New(db)
@@ -103,19 +103,19 @@ func TestUserRepository_UpdatePassword(t *testing.T) {
 	u, _ := s.User().Create(model.TestUser(t))
 	new_password := "password123"
 	// Test valid user
-	err := s.User().UpdatePassword(u, new_password)
+	err := s.User().SetPassword(u, new_password)
 	assert.NoError(t, err)
 
-	user, err := s.User().FindById(u.Id)
+	user, err := s.User().GetById(u.Id)
 	assert.NoError(t, err)
 	assert.True(t, user.ComparePassword(new_password))
 
 	// Test invalid password
 	new_password = ""
-	err = s.User().UpdatePassword(u, new_password)
+	err = s.User().SetPassword(u, new_password)
 	assert.Error(t, err)
 
-	user, err = s.User().FindById(u.Id)
+	user, err = s.User().GetById(u.Id)
 	assert.NoError(t, err)
 	assert.False(t, user.ComparePassword(new_password))
 }
@@ -132,9 +132,9 @@ func TestUserRepository_UpdateUsername(t *testing.T) {
 	// Test valid user
 	valid_username := "paSsword"
 	valid_slug := strings.ToLower(valid_username)
-	err := s.User().UpdateUsername(u, valid_username)
+	err := s.User().SetUsername(u, valid_username)
 	assert.NoError(t, err)
-	user, err := s.User().FindById(u.Id)
+	user, err := s.User().GetById(u.Id)
 	assert.NoError(t, err)
 	assert.Equal(t, user.Username, valid_username)
 	assert.Equal(t, user.Slug, valid_slug)
@@ -142,15 +142,15 @@ func TestUserRepository_UpdateUsername(t *testing.T) {
 	// Test invalid password
 	invalid_username := ""
 	invalid_slug := strings.ToLower(invalid_username)
-	err = s.User().UpdateUsername(u, invalid_username)
+	err = s.User().SetUsername(u, invalid_username)
 	assert.Error(t, err)
 
-	user, err = s.User().FindById(u.Id)
+	user, err = s.User().GetById(u.Id)
 	assert.NoError(t, err)
 	assert.NotEqual(t, user.Username, invalid_username)
 	assert.NotEqual(t, user.Slug, invalid_slug)
 
 	new_user, _ := s.User().Create(model.TestUser(t))
-	err = s.User().UpdateUsername(new_user, valid_username)
+	err = s.User().SetUsername(new_user, valid_username)
 	assert.Error(t, err)
 }

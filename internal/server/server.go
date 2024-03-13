@@ -14,10 +14,10 @@ import (
 type Server struct {
 	router *mux.Router
 	logger *logrus.Logger
-	store  store.Store
+	store  store.Storer
 }
 
-func newServer(store store.Store, logLevel string) *Server {
+func newServer(store store.Storer, logLevel string) *Server {
 	s := &Server{
 		router: mux.NewRouter(),
 		logger: logrus.New(),
