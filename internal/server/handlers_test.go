@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestServer_HandleRegister(t *testing.T) {
+func TestServer_HandleRegister(t *testing.T) { //nolint: no cover
 
 	s := newServer(teststore.New(), "info")
 
@@ -68,7 +68,7 @@ func TestServer_HandleRegister(t *testing.T) {
 }
 
 
-func TestServer_HandleAuth(t *testing.T) {
+func TestServer_HandleAuth(t *testing.T) { //nolint: errcheck
 
 	s := newServer(teststore.New(), "info")
 	u := model.TestUser(t)
