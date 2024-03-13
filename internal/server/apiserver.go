@@ -84,7 +84,5 @@ func migrateTables(db *sql.DB) error {
 		return err
 	}
 
-	m.Up()
-
-	return nil
+	return m.Up()
 }
