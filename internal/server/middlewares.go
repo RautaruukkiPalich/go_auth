@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/rautaruukkipalich/go_auth/pkg/utils/jwt"
+	"github.com/rautaruukkipalich/go_auth/internal/utils/jwt"
 )
 
 var ErrInvalidToken = errors.New("invalid token")
