@@ -27,6 +27,8 @@ tidy:
 
 lint:
 	golangci-lint run ./...
+	
+# --fast  --config=./.golangci.yaml
 
 ################
 ## MIGRATIONS ##
