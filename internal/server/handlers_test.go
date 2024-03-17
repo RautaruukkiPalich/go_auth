@@ -119,10 +119,24 @@ func TestServer_HandleAuth(t *testing.T) {
 			var json_data bytes.Buffer
 			_ = json.NewEncoder(&json_data).Encode(tc.payload)
 
+
 			req, _ := http.NewRequest(http.MethodPost, "/auth", &json_data)
 			s.ServeHTTP(rr, req)
 
+			cookies := rr.Result().Cookies()
+			var authCookie string
+
+			for _, cookie := range cookies {
+				if cookie.Name == "Authorization" {
+					authCookie = cookie.Value
+					break
+				}
+			}
+
 			assert.Equal(t, tc.expectedCode, rr.Code)
+			if rr.Code == http.StatusOK {
+				assert.NotEmpty(t, authCookie)
+			}
 		})
 	}
 }

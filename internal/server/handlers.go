@@ -1,10 +1,12 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/rautaruukkipalich/go_auth/internal/model"
+	"github.com/rautaruukkipalich/go_auth/internal/utils/jwt"
 )
 
 type (
@@ -116,12 +118,28 @@ func (s *Server) Auth() http.HandlerFunc {
 			Password: form.Password,
 		}
 
-		token, err := s.store.User().Auth(u)
+		u, err := s.store.User().Auth(u)
+		if err != nil {
+			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnauthorized})
+			return
+		}
+
+		token, err := jwt.EncodeJWTToken(u.Id)
 
 		if err != nil {
 			s.error(w, r, errorResponse{Error: err.Error(), Code: http.StatusUnauthorized})
 			return
 		}
+
+		cookie := http.Cookie{
+			Name: "Authorization",
+			Value: fmt.Sprintf("Bearer %s", token),
+			Path: "/",
+			MaxAge: jwt.GetTTL(),
+			HttpOnly: true,
+		}
+
+		http.SetCookie(w, &cookie)
 
 		s.respond(w, r, http.StatusOK, loginResponse{AccessToken: token})
 	}
