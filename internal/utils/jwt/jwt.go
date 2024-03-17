@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/rautaruukkipalich/go_auth/pkg/utils/env"
+	"github.com/rautaruukkipalich/go_auth/pkg/env"
 
 )
 
@@ -25,6 +25,9 @@ func newJwtConfig() *JWTConfig {
 var ErrJWTDecode = errors.New("unexpected signing method")
 var ErrJWTEncode = errors.New("JWT token failed to signed")
 
+func GetTTL() int {
+	return env.GetEnvAsInt("JWT_TTL_SECONDS", 3600)
+}
 
 func EncodeJWTToken(id int) (string, error){
 	jwtCfg := newJwtConfig()
