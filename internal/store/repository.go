@@ -14,7 +14,7 @@ type UserCreater interface {
 }
 
 type UserAuthenticater interface {
-	Auth(*model.User) (string, error)
+	Auth(*model.User) (*model.User, error)
 }
 
 type UserGetter interface {

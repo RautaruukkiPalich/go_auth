@@ -7,7 +7,6 @@ import (
 
 	"github.com/rautaruukkipalich/go_auth/internal/model"
 	"github.com/rautaruukkipalich/go_auth/internal/store"
-	"github.com/rautaruukkipalich/go_auth/pkg/utils/jwt"
 )
 
 type UserRepository struct {
@@ -80,17 +79,17 @@ func (r *UserRepository) GetBySlug(slug string) (*model.User, error) {
 	return u, nil
 }
 
-func (r *UserRepository) Auth(u *model.User) (string, error) {
+func (r *UserRepository) Auth(u *model.User) (*model.User, error) {
 	user, err := r.GetByUsername(u.Username)
 
 	if err != nil {
-		return "", store.ErrRecordNotFound
+		return nil, store.ErrRecordNotFound
 	}
 	if !user.ComparePassword(u.Password){
-		return "", store.ErrRecordNotFound
+		return nil, store.ErrRecordNotFound
 	}
 
-	return jwt.EncodeJWTToken(user.Id)
+	return user, nil
 }
 
 func (r *UserRepository) SetPassword(u *model.User, password string) (error) {

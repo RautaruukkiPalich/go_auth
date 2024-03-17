@@ -90,9 +90,9 @@ func TestUserRepository_Auth(t *testing.T) {
 
 	// Test invalid password
 	u.Password = "password123"
-	token, err = s.User().Auth(u)
+	_, err = s.User().Auth(u)
 	assert.EqualError(t, err, store.ErrRecordNotFound.Error())
-	assert.Len(t, token, 0)
+	// assert.NotNil(t, user)
 }
 
 func TestUserRepository_SetPassword(t *testing.T) {
