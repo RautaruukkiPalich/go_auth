@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/rautaruukkipalich/go_auth/pkg/env"
+	"github.com/rautaruukkipalich/go_auth/internal/utils/env"
 
 )
 

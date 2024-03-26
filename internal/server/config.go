@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/rautaruukkipalich/go_auth/pkg/env"
+	"github.com/rautaruukkipalich/go_auth/internal/utils/env"
 )
 
 type (
